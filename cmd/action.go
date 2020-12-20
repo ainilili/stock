@@ -25,7 +25,7 @@ func GetCommand(c *cli.Context) {
 		details.Name = string(nameRune[:10])
 	}
 	logger.Infof("%-10s\t%-10s\t%-10s\t%-10s", "Name","Code","Price","Change")
-	logger.Infof("%-10s\t%-10s\t%-10s\t%-10s", details.Name, details.Code, details.Price, details.Change)
+	logger.Infof("%-10s\t%-10s\t%-10s\t%-10s", details.Name, details.Code, details.Price, details.Change + "%")
 }
 
 func ListCommand(c *cli.Context) {

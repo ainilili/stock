@@ -57,7 +57,7 @@ func (p *SinaProxy) Get(query string)(*model.StockDetails, error){
 	volumeTransaction, _ := strconv.ParseFloat(parts[9], 64)
 	limitUp := fmt.Sprintf("%.2f", prevClose * 1.1)
 	limitDown := fmt.Sprintf("%.2f", prevClose * 0.9)
-	change := fmt.Sprintf("%.2f", (price - prevClose)/prevClose)
+	change := fmt.Sprintf("%.2f", (price - prevClose)/prevClose * 100)
 	changePrice := fmt.Sprintf("%.2f", price - prevClose)
 	return &model.StockDetails{
 		Name: parts[0],
