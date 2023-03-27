@@ -1,14 +1,12 @@
 package proxy
 
 import (
-	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/ainilili/stock/model"
 	"github.com/ainilili/stock/util/http"
-	"github.com/ainilili/stock/util/imagex"
-	"image"
-	_ "image/gif"
+	"github.com/pterm/pterm"
 	"strconv"
 	"strings"
 	"time"
@@ -21,7 +19,7 @@ func (p *SinaProxy) List(query string) ([]model.Stock, error) {
 	if err != nil {
 		return nil, err
 	}
-	body := parseBody(resp)
+	body := parseSinaBody(string(resp))
 	if body == "" {
 		return nil, nil
 	}
@@ -48,7 +46,7 @@ func (p *SinaProxy) Get(query string) (*model.StockDetails, error) {
 	if err != nil {
 		return nil, err
 	}
-	body := parseBody(resp)
+	body := parseSinaBody(string(resp))
 	if body == "" || len([]rune(body)) < 20 {
 		return nil, errors.New("response nil")
 	}
@@ -85,20 +83,50 @@ func (p *SinaProxy) Get(query string) (*model.StockDetails, error) {
 }
 
 func (p *SinaProxy) getNewChart(query string) (string, error) {
-	body, err := http.GetImage(fmt.Sprintf("https://image.sinajs.cn/newchart/min/n/%s.gif", query), http.HeaderOption{
-		Name:  "Referer",
-		Value: "https://finance.sina.com.cn/realstock/company/sh600000/nc.shtml",
+	cookies, err := http.GetRespCookies("https://xueqiu.com")
+	if err != nil {
+		return "", err
+	}
+	xqat := ""
+	for _, cookie := range cookies {
+		if cookie.Name == "xqat" {
+			xqat = cookie.Value
+		}
+	}
+	body, err := http.Get(fmt.Sprintf("https://stock.xueqiu.com/v5/stock/chart/minute.json?symbol=%s&period=1d", strings.ToUpper(query)), http.HeaderOption{
+		Name:  "cookie",
+		Value: fmt.Sprintf("xqat=%s;", xqat),
 	})
 	if err != nil {
 		return "", err
 	}
-	img, _, err := image.Decode(bytes.NewBuffer(body))
+	resp := new(model.StockChartResp)
+	err = json.Unmarshal(body, resp)
 	if err != nil {
 		return "", err
 	}
-	return imagex.ConvertImage(img, 80), nil
+	positiveBars := pterm.Bars{}
+	for _, item := range resp.Data.Items {
+		style := pterm.NewStyle(pterm.FgGreen)
+		if item.Current > resp.Data.LastClose {
+			style = pterm.NewStyle(pterm.FgRed)
+		}
+		positiveBars = append(positiveBars, pterm.Bar{
+			Label:      time.UnixMilli(item.Timestamp).Format("15:04") + "  " + fmt.Sprintf("%.2f", item.Current) + " " + fmt.Sprintf("%6.2f%%", (item.Current-resp.Data.LastClose)/resp.Data.LastClose*100),
+			Value:      int((item.Current - resp.Data.LastClose) * 100),
+			Style:      style,
+			LabelStyle: style,
+		})
+	}
+	_ = pterm.DefaultBarChart.
+		WithHorizontal().
+		WithBars(positiveBars).
+		WithWidth(50).
+		Render()
+	return "", nil
 }
 
-func parseBody(body string) string {
+func parseSinaBody(body string) string {
+	body, _ = http.Decode(body, "gb18030")
 	return strings.ReplaceAll(strings.Split(body, "=")[1], "\"", "")
 }

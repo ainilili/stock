@@ -11,10 +11,5 @@ var (
 			Usage:  "get stock information.",
 			Action: GetCommand,
 		},
-		{
-			Name:   "list",
-			Usage:  "list of stocks.",
-			Action: ListCommand,
-		},
 	}
 )

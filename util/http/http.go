@@ -35,17 +35,17 @@ func init() {
 	}
 }
 
-func Get(url string, headerOptions ...HeaderOption) (string, error) {
+func Get(url string, headerOptions ...HeaderOption) ([]byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	for _, headerOption := range headerOptions {
 		req.Header.Set(headerOption.Name, headerOption.Value)
 	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	return responseHandle(resp, err)
@@ -71,16 +71,38 @@ func GetImage(url string, headerOptions ...HeaderOption) ([]byte, error) {
 	return b, nil
 }
 
-func responseHandle(resp *http.Response, err error) (string, error) {
+func GetRespHeader(url string) (http.Header, error) {
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return resp.Header, nil
+}
+
+func GetRespCookies(url string) ([]*http.Cookie, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return resp.Cookies(), nil
+}
+
+func responseHandle(resp *http.Response, err error) ([]byte, error) {
+	if err != nil {
+		return nil, err
 	}
 	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	respBody, _ := Decode(string(b), "gb18030")
-	return respBody, nil
+	return b, nil
 }
 
 func transformString(t transform.Transformer, s string) (string, error) {

@@ -19,3 +19,10 @@ func TestGet(t *testing.T) {
 	assert.Nil(t, err)
 	fmt.Println(details)
 }
+
+func TestChart(t *testing.T) {
+	s := &SinaProxy{}
+	chart, err := s.getNewChart("SZ002049")
+	assert.Nil(t, err)
+	fmt.Println(chart)
+}
