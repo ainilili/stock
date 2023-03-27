@@ -1,13 +1,12 @@
-/**
-2 * @Author: Nico
-3 * @Date: 2020/12/21 2:47
-4 */
 package main
+
 import "fmt"
 import "os"
+
 type point struct {
 	x, y int
 }
+
 func main() {
 	//Go 为常规 Go 值的格式化设计提供了多种打印方式。例如，这里打印了 point 结构体的一个实例。
 	p := point{1, 2}
@@ -57,5 +56,3 @@ func main() {
 	//你可以使用 Fprintf 来格式化并输出到 io.Writers而不是 os.Stdout。
 	fmt.Fprintf(os.Stderr, "an %s\n", "error")
 }
-
-

@@ -1,7 +1,3 @@
-/**
-2 * @Author: Nico
-3 * @Date: 2020/12/21 2:27
-4 */
 package main
 
 import (
@@ -21,5 +17,3 @@ func main() {
 		fmt.Println("error:", err)
 	}
 }
-
-

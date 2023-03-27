@@ -1,7 +1,3 @@
-/**
-2 * @Author: Nico
-3 * @Date: 2020/12/21 0:45
-4 */
 package logger
 
 import "fmt"

@@ -1,7 +1,3 @@
-/**
-2 * @Author: Nico
-3 * @Date: 2020/12/19 15:20
-4 */
 package cmd
 
 import (
@@ -22,5 +18,3 @@ var (
 		},
 	}
 )
-
-

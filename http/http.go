@@ -1,7 +1,3 @@
-/**
-2 * @Author: Nico
-3 * @Date: 2020/12/20 20:27
-4 */
 package http
 
 import (
@@ -15,7 +11,7 @@ import (
 	"time"
 )
 
-var(
+var (
 	httpClient = &http.Client{}
 )
 

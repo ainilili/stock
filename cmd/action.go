@@ -1,7 +1,3 @@
-/**
-2 * @Author: Nico
-3 * @Date: 2020/12/20 20:10
-4 */
 package cmd
 
 import (
@@ -17,15 +13,15 @@ func GetCommand(c *cli.Context) {
 	}
 	query := c.Args()[0]
 	details, err := proxy.Get(query)
-	if err != nil{
+	if err != nil {
 		return
 	}
 	nameRune := []rune(details.Name)
-	if len(nameRune) > 10{
+	if len(nameRune) > 10 {
 		details.Name = string(nameRune[:10])
 	}
-	logger.Infof("%-10s\t%-10s\t%-10s\t%-10s", "Name","Code","Price","Change")
-	logger.Infof("%-10s\t%-10s\t%-10s\t%-10s", details.Name, details.Code, details.Price, details.Change + "%")
+	logger.Infof("%-10s\t%-10s\t%-10s\t%-20s\t%-10s", "Name", "Code", "Price", "Volume Transaction", "Change")
+	logger.Infof("%-10s\t%-10s\t%-10s\t%-20s\t%-10s", details.Name, details.Code, details.Price, details.VolumeTransaction, details.Change+"%")
 }
 
 func ListCommand(c *cli.Context) {
@@ -34,13 +30,13 @@ func ListCommand(c *cli.Context) {
 	}
 	query := c.Args()[0]
 	stocks, err := proxy.List(query)
-	if err != nil{
+	if err != nil {
 		return
 	}
-	logger.Infof("%-10s\t%s", "Name","Code")
-	for _, stock := range stocks{
+	logger.Infof("%-10s\t%s", "Name", "Code")
+	for _, stock := range stocks {
 		nameRune := []rune(stock.Name)
-		if len(nameRune) > 10{
+		if len(nameRune) > 10 {
 			stock.Name = string(nameRune[:10])
 		}
 		logger.Infof("%-10s\t%s", stock.Name, strings.TrimSpace(stock.Code))
