@@ -1,10 +1,14 @@
 package proxy
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
-	"github.com/ainilili/stock/http"
 	"github.com/ainilili/stock/model"
+	"github.com/ainilili/stock/util/http"
+	"github.com/ainilili/stock/util/imagex"
+	"image"
+	_ "image/gif"
 	"strconv"
 	"strings"
 	"time"
@@ -57,6 +61,11 @@ func (p *SinaProxy) Get(query string) (*model.StockDetails, error) {
 	limitDown := fmt.Sprintf("%.2f", prevClose*0.9)
 	change := fmt.Sprintf("%.2f", (price-prevClose)/prevClose*100)
 	changePrice := fmt.Sprintf("%.2f", price-prevClose)
+
+	minChart, err := p.getNewChart(query)
+	if err != nil {
+		return nil, err
+	}
 	return &model.StockDetails{
 		Name:              parts[0],
 		Code:              query,
@@ -71,7 +80,23 @@ func (p *SinaProxy) Get(query string) (*model.StockDetails, error) {
 		ChangePrice:       changePrice,
 		Volume:            fmt.Sprintf("%.2f", volume/(10000*100)),
 		VolumeTransaction: fmt.Sprintf("%.2f", volumeTransaction/(10000*100)),
+		MinNewChart:       minChart,
 	}, nil
+}
+
+func (p *SinaProxy) getNewChart(query string) (string, error) {
+	body, err := http.GetImage(fmt.Sprintf("https://image.sinajs.cn/newchart/min/n/%s.gif", query), http.HeaderOption{
+		Name:  "Referer",
+		Value: "https://finance.sina.com.cn/realstock/company/sh600000/nc.shtml",
+	})
+	if err != nil {
+		return "", err
+	}
+	img, _, err := image.Decode(bytes.NewBuffer(body))
+	if err != nil {
+		return "", err
+	}
+	return imagex.ConvertImage(img, 80), nil
 }
 
 func parseBody(body string) string {

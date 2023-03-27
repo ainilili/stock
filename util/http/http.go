@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"golang.org/x/net/html/charset"
 	"golang.org/x/text/transform"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -44,21 +44,38 @@ func Get(url string, headerOptions ...HeaderOption) (string, error) {
 		req.Header.Set(headerOption.Name, headerOption.Value)
 	}
 	resp, err := httpClient.Do(req)
-	defer func() {
-		if resp != nil {
-			if e := resp.Body.Close(); e != nil {
-				fmt.Println(e)
-			}
-		}
-	}()
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
 	return responseHandle(resp, err)
+}
+
+func GetImage(url string, headerOptions ...HeaderOption) ([]byte, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	for _, headerOption := range headerOptions {
+		req.Header.Set(headerOption.Name, headerOption.Value)
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }
 
 func responseHandle(resp *http.Response, err error) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -68,7 +85,7 @@ func responseHandle(resp *http.Response, err error) (string, error) {
 
 func transformString(t transform.Transformer, s string) (string, error) {
 	r := transform.NewReader(strings.NewReader(s), t)
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	return string(b), err
 }
 

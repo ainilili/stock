@@ -24,4 +24,5 @@ type StockDetails struct {
 	PERatio           string //市盈率
 	PBRatio           string //市净率
 	EPS               string //每股收益
+	MinNewChart       string //分时走势图
 }
