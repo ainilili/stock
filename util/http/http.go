@@ -89,6 +89,9 @@ func GetRespCookies(url string) ([]*http.Cookie, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36")
+	req.Header.Set("Cookie", "acw_sc__v2=67077166291fde90f1e32e92f5581ff3fc258db9;")
+
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
